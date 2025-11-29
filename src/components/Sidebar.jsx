@@ -118,11 +118,15 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
           <Building2 size={20} /> {sidebarOpen && 'Properties'}
         </div>
 
-        <div className="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer">
+        <div
+          onClick={() => navigate('/users')}
+          className="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer">
           <Users size={20} /> {sidebarOpen && 'Users'}
         </div>
 
-        <div className="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer">
+        <div
+          onClick={() => navigate('/settings')}
+          className="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer">
           <Settings size={20} /> {sidebarOpen && 'Settings'}
         </div>
 
