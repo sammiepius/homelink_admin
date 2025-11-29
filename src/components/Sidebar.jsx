@@ -80,24 +80,25 @@
 // }
 
 // src/components/Sidebar.jsx
-import { Home, Users, Settings, Building2, LogOut, Menu } from "lucide-react";
+import { Home, Users, Settings, Building2, LogOut, Menu } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
+  const navigate = useNavigate();
+
   return (
     <aside
       className={`${
-        sidebarOpen ? "w-64" : "w-20"
+        sidebarOpen ? 'w-64' : 'w-20'
       } bg-white border-r p-4 fixed h-full shadow-sm 
-      transition-[width] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]`}
-    >
+      transition-[width] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]`}>
       <div className="flex items-center justify-between mb-8">
-        <h1
-          className={`text-sm font-bold text-gray-800 ${
-            sidebarOpen ? "block" : "hidden"
-          }`}
-        >
+        <span
+          className={`text-md font-bold  text-teal-600 ${
+            sidebarOpen ? 'block' : 'hidden'
+          }`}>
           HomeLink Admin
-        </h1>
+        </span>
         <Menu
           className="cursor-pointer"
           onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -105,27 +106,30 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
       </div>
 
       <nav className="space-y-4 text-gray-700">
-        <div className="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer">
-          <Home size={20} /> {sidebarOpen && "Dashboard"}
+        <div
+          onClick={() => navigate('/dashboard')}
+          className="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer">
+          <Home size={20} /> {sidebarOpen && 'Dashboard'}
+        </div>
+
+        <div
+          onClick={() => navigate('/properties')}
+          className="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer">
+          <Building2 size={20} /> {sidebarOpen && 'Properties'}
         </div>
 
         <div className="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer">
-          <Building2 size={20} /> {sidebarOpen && "Properties"}
+          <Users size={20} /> {sidebarOpen && 'Users'}
         </div>
 
         <div className="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer">
-          <Users size={20} /> {sidebarOpen && "Users"}
-        </div>
-
-        <div className="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer">
-          <Settings size={20} /> {sidebarOpen && "Settings"}
+          <Settings size={20} /> {sidebarOpen && 'Settings'}
         </div>
 
         <div className="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer text-red-500 mt-8">
-          <LogOut size={20} /> {sidebarOpen && "Logout"}
+          <LogOut size={20} /> {sidebarOpen && 'Logout'}
         </div>
       </nav>
     </aside>
   );
 }
-

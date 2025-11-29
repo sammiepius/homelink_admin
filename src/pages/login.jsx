@@ -17,7 +17,7 @@ export default function Login() {
     //   });
 
     //   localStorage.setItem('adminToken', res.data.token);
-    navigate('/');
+    navigate('/dashboard');
     // } catch (err) {
     //   alert('Login failed');
     // }
@@ -26,7 +26,7 @@ export default function Login() {
   return (
     <div className="h-screen flex items-center justify-center bg-gray-100">
       <form
-        onSubmit={() => navigate('/')}
+        onSubmit={handleLogin}
         className="bg-white shadow-md rounded p-8 w-96">
         <h2 className="text-2xl font-semibold mb-6 text-center">Admin Login</h2>
 
