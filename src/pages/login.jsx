@@ -1,26 +1,56 @@
 import { useState } from 'react';
 import axios from 'axios';
+import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
-    // try {
-    //   const res = await axios.post('http://localhost:5000/api/admin/login', {
-    //     email,
-    //     password,
-    //   });
+    try {
+      if (!email || !password) {
+        toast.error('Please enter email and password');
+        setLoading(false);
+        return;
+      }
 
-    //   localStorage.setItem('adminToken', res.data.token);
-    navigate('/dashboard');
-    // } catch (err) {
-    //   alert('Login failed');
-    // }
+      const res = await axios.post(
+        'http://localhost:5000/api/auth/adminlogin',
+        { email, password }
+      );
+
+      const { token, user } = res.data;
+
+      if (!token || !user) {
+        toast.error('Invalid server response');
+        setLoading(false);
+        return;
+      }
+
+      if (user.role !== 'ADMIN') {
+        toast.error('Access denied. Admins only.');
+        setLoading(false);
+        return;
+      }
+
+      localStorage.setItem('adminToken', token);
+      localStorage.setItem('adminUser', JSON.stringify(user));
+
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      toast.success(`Welcome back, ${user.name}!`);
+      navigate('/dashboard');
+    } catch (err) {
+      console.error('Login failed:', err);
+      toast.error(err.response?.data?.message || 'Invalid credentials');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

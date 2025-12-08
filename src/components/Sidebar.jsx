@@ -82,10 +82,16 @@
 // src/components/Sidebar.jsx
 import { Home, Users, Settings, Building2, LogOut, Menu } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import axios from '../axiosConfig';
 
 export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
   const navigate = useNavigate();
-
+  const handleLogout = () => {
+    localStorage.removeItem('adminToken');
+    localStorage.removeItem('adminUser');
+    delete axios.defaults.headers.common['Authorization'];
+    navigate('/');
+  };
   return (
     <aside
       className={`${
@@ -130,7 +136,9 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
           <Settings size={20} /> {sidebarOpen && 'Settings'}
         </div>
 
-        <div className="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer text-red-500 mt-8">
+        <div
+          onClick={handleLogout}
+          className="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg cursor-pointer text-red-500 mt-8">
           <LogOut size={20} /> {sidebarOpen && 'Logout'}
         </div>
       </nav>

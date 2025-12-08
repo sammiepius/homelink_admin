@@ -26,15 +26,14 @@ export default function Navbar({ sidebarOpen, setSidebarOpen }) {
         <Bell className="text-gray-600 cursor-pointer" />
 
         <div className="flex items-center gap-3">
-          <span className="font-medium text-gray-800 hidden md:block">
-            John Doe
-          </span>
-
           <img
-            src="/your-image.jpg"
+            src="/owner.jpg"
             className="w-10 h-10 rounded-full object-cover"
             alt="avatar"
           />
+           <span className="font-medium text-gray-800 hidden md:block">
+            John Doe
+          </span>
         </div>
       </div>
     </header>

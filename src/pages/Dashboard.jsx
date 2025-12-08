@@ -1,4 +1,5 @@
 // src/pages/AdminDashboard.jsx
+import { useEffect, useState } from 'react';
 import AdminLayout from '../layouts/AdminLayout';
 import {
   BarChart,
@@ -11,9 +12,43 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
+import axios from 'axios';
 
 export default function AdminDashboard() {
-  const stats = [
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await axios.get('http://localhost:5000/api/admin/stats');
+        setStats(res.data);
+        console.log(stats)
+      } catch (error) {
+        console.error("Dashboard fetch failed:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStats();
+  }, []);
+
+  // const fetchDashboardStats = async () => {
+  //   try {
+  //     const res = await axios.get("http://localhost:5000/api/admin/dashboard");
+  //     setStats(res.data);
+  //   } catch (err) {
+  //     console.error("Dashboard fetch failed:", err);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   fetchDashboardStats();
+  // }, []);
+
+  const stat = [
     { title: 'Total Properties', value: 128 },
     { title: 'Total Users', value: 540 },
     { title: 'Landlords', value: 76 },
@@ -31,7 +66,7 @@ export default function AdminDashboard() {
   return (
     <>
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-        {stats.map((s, i) => (
+        {stat.map((s, i) => (
           <div key={i} className="bg-white p-4 rounded-lg shadow-sm border">
             <span className="text-gray-500 text-md">{s.title}</span>
             <p className="text-2xl font-bold mt-1">{s.value}</p>

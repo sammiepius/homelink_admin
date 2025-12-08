@@ -1,8 +1,9 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Login from './pages/login';
+import { Toaster } from 'sonner';
+import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
-// import ProtectedRoute from './components/ProtectedRoute';
+import ProtectedRoute from './components/ProtectedRoute';
 import AdminLayout from './layouts/AdminLayout';
 import Properties from './pages/Properties';
 import Users from './pages/Users';
@@ -11,6 +12,7 @@ import Settings from './pages/Settings';
 export default function App() {
   return (
     <Router>
+      <Toaster richColors position="top-right" />
       <Routes>
         <Route path="/" element={<Login />} />
         {/* <Route path="/dashboard" element={<Dashboard />} /> */}
@@ -18,11 +20,11 @@ export default function App() {
         <Route
           path="/dashboard"
           element={
-            // <ProtectedRoute>
-            <AdminLayout>
-              <Dashboard />
-            </AdminLayout>
-            // </ProtectedRoute>
+            <ProtectedRoute>
+              <AdminLayout>
+                <Dashboard />
+              </AdminLayout>
+            </ProtectedRoute>
           }
         />
         <Route
