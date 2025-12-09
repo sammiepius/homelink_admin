@@ -1,5 +1,6 @@
 // src/pages/AdminDashboard.jsx
 import { useEffect, useState } from 'react';
+// import axios from '../axiosConfig';
 import AdminLayout from '../layouts/AdminLayout';
 import {
   BarChart,
@@ -15,19 +16,24 @@ import {
 import axios from 'axios';
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState(null);
+  const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/admin/stats');
+        const token = localStorage.getItem('adminToken');
+
+        const res = await axios.get('http://localhost:5000/api/admin/stats', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
         setStats(res.data);
-        console.log(stats)
-      } catch (error) {
-        console.error("Dashboard fetch failed:", error);
-      } finally {
-        setLoading(false);
+        console.log(stats);
+      } catch (err) {
+        console.error('Stats error:', err.response?.data || err.message);
       }
     };
     fetchStats();
@@ -48,11 +54,22 @@ export default function AdminDashboard() {
   //   fetchDashboardStats();
   // }, []);
 
+  // const stat = [
+  //   { title: 'Total Properties', value: 128 },
+  //   { title: 'Total Users', value: 540 },
+  //   { title: 'Landlords', value: 76 },
+  //   { title: 'Active Listings', value: 98 },
+  // ];
+
   const stat = [
-    { title: 'Total Properties', value: 128 },
-    { title: 'Total Users', value: 540 },
-    { title: 'Landlords', value: 76 },
-    { title: 'Active Listings', value: 98 },
+    { label: 'Total Users', value: stats.totalUsers },
+    { label: 'Total Properties', value: stats.totalProperties },
+    { label: 'Total Messages', value: stats.totalMessages },
+    { label: 'Active Listings', value: 98 },
+    // { label: 'Total Users', value: stats.totalUsers },
+    // { label: 'Total Properties', value: stats.totalProperties },
+    // { label: 'Total Messages', value: stats.totalMessages },
+    // { label: 'Active Listings', value: 98 },
   ];
 
   const data = [
@@ -66,10 +83,10 @@ export default function AdminDashboard() {
   return (
     <>
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-        {stat.map((s, i) => (
-          <div key={i} className="bg-white p-4 rounded-lg shadow-sm border">
-            <span className="text-gray-500 text-md">{s.title}</span>
-            <p className="text-2xl font-bold mt-1">{s.value}</p>
+        {stat.map((s, index) => (
+          <div key={index} className="bg-white p-4 rounded-lg shadow-sm border">
+            <span className="text-gray-500 text-md">{s.label}</span>
+            <p className="text-2xl font-bold mt-1">{s.value ?? 0}</p>
           </div>
         ))}
       </section>
