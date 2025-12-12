@@ -567,12 +567,21 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
-import { Search, Check, X, ChevronUp, ChevronDown, Filter } from 'lucide-react';
+import {
+  Search,
+  Check,
+  X,
+  ChevronUp,
+  ChevronDown,
+  Filter,
+  CheckCircle,
+} from 'lucide-react';
 import PropertyModal from '../pages/PropertyModal';
+import { toast } from 'sonner';
 
 export default function ApprovalsPage() {
   const [properties, setProperties] = useState([]);
-  const [selected, setSelected] = useState(null);
+  const [selected, setSelected] = useState(false);
 
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
@@ -612,19 +621,31 @@ export default function ApprovalsPage() {
   const handleApprove = async (id) => {
     try {
       await axios.patch(
-        `http://localhost:5000/api/admin/properties/${id}/approve`
+        `http://localhost:5000/api/admin/property/${id}/approve`
       );
+      setSelected((prev) => (prev ? { ...prev, approved: true } : null));
       fetchPendingApprovals();
       setSelected(null);
+      toast.success('Property approved successfully');
     } catch (error) {
       console.error('Approve error:', error);
+
+      // Detect backend response
+      const msg = error?.response?.data?.message;
+
+      if (msg === 'This property is already approved.') {
+        toast.info('Already approved');
+        return;
+      }
+
+      toast.error('Failed to approve property');
     }
   };
 
   const handleReject = async (id) => {
     try {
       await axios.patch(
-        `http://localhost:5000/api/admin/properties/${id}/reject`
+        `http://localhost:5000/api/admin/property/${id}/reject`
       );
       fetchPendingApprovals();
       setSelected(null);
@@ -633,14 +654,50 @@ export default function ApprovalsPage() {
     }
   };
 
-  const handleToggleActive = async (id, value) => {
-    await axios.patch(
-      `http://localhost:5000/api/admin/property/${id}/toggle-active`,
-      {
-        isActive: value,
-      }
-    );
-    fetchPendingApprovals(); // refresh list
+  // const handleToggleActive = async (id, value) => {
+  //   await axios.patch(
+  //     `http://localhost:5000/api/admin/property/${id}/toggle-active`,
+  //     {
+  //       isActive: value,
+  //     }
+  //   );
+  //   fetchPendingApprovals(); // refresh list
+  // };
+  // const handleToggleActive = async (id, isActive) => {
+  //   try {
+  //     await axios.patch(
+  //       `http://localhost:5000/api/admin/property/${id}/toggle-active`,
+  //       { isActive }
+  //     );
+
+  //     // 🔥 Update local property state instantly
+  //     setProperties((prev) =>
+  //       prev.map((p) => (p.id === id ? { ...p, isActive } : p))
+  //     );
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
+  // };
+
+  const handleToggleActive = async (id, isActive) => {
+    try {
+      await axios.patch(
+        `http://localhost:5000/api/admin/property/${id}/toggle-active`,
+        { isActive }
+      );
+
+      // 1️⃣ Update properties state
+      setProperties((prev) =>
+        prev.map((p) => (p.id === id ? { ...p, isActive } : p))
+      );
+
+      // 2️⃣ Update modal state (critical fix!)
+      setSelected((prev) =>
+        prev && prev.id === id ? { ...prev, isActive } : prev
+      );
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const sortData = (data) => {
@@ -802,10 +859,10 @@ export default function ApprovalsPage() {
                   Actions
                 </th> */}
                 <th className="p-4 text-sm font-semibold text-gray-600 text-right">
-                  status
+                  Status
                 </th>
                 <th className="p-4 text-sm font-semibold text-gray-600 text-right">
-                  active
+                  Active
                 </th>
               </tr>
             </thead>
@@ -847,8 +904,29 @@ export default function ApprovalsPage() {
                       <X size={16} />
                     </button>
                   </td> */}
-                  <td className="p-4 font-medium">Approved</td>
-                  <td className="p-4 text-gray-600">active</td>
+                  <td className="p-4 font-medium">
+                    {p.approved ? (
+                      <span className="px-2 py-1 rounded-full text-sm bg-green-100 text-green-700 flex items-center gap-1">
+                        <CheckCircle size={14} /> Approved
+                      </span>
+                    ) : (
+                      <span className="px-3 py-1 rounded-full text-sm bg-yellow-100 text-yellow-700 flex items-center gap-1">
+                        Pending
+                      </span>
+                    )}
+                  </td>
+                  <td className="p-4 text-gray-600">
+                    {' '}
+                    {p.isActive ? (
+                      <span className="px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-700">
+                        Active
+                      </span>
+                    ) : (
+                      <span className="px-3 py-1 rounded-full text-sm bg-gray-200 text-gray-600">
+                        Inactive
+                      </span>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
