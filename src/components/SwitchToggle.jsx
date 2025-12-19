@@ -13,16 +13,14 @@ export default function SwitchToggle({ checked, onChange }) {
           w-11 h-6 bg-neutral-300 rounded-full
           peer-checked:bg-blue-600
           transition-all
-        "
-      ></div>
+        "></div>
 
       <span
         className="
           absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow
           transition-all
           peer-checked:translate-x-5
-        "
-      ></span>
+        "></span>
     </label>
   );
 }

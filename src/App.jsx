@@ -8,6 +8,10 @@ import AdminLayout from './layouts/AdminLayout';
 import Properties from './pages/Properties';
 import Users from './pages/Users';
 import Settings from './pages/Settings';
+import ApprovalsPage from './pages/ApprovalPage';
+import PropertyDetails from './pages/PropertyDetails';
+import AdminAuditLogs from './pages/AuditLogs';
+import RecentActivities from './components/dashboardStats/RecentActivities';
 
 export default function App() {
   return (
@@ -16,6 +20,9 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         {/* <Route path="/dashboard" element={<Dashboard />} /> */}
+        <Route path="/property/:id" element={<PropertyDetails />} />
+        <Route path="/activity/audit" element={<AdminAuditLogs />} />
+        <Route path="/activity/recent" element={<RecentActivities />} />
 
         <Route
           path="/dashboard"
@@ -27,12 +34,22 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-        <Route
+        {/* <Route
           path="/properties"
           element={
             // <ProtectedRoute>
             <AdminLayout>
               <Properties />
+            </AdminLayout>
+            // </ProtectedRoute>
+          }
+        /> */}
+        <Route
+          path="/properties"
+          element={
+            // <ProtectedRoute>
+            <AdminLayout>
+              <ApprovalsPage />
             </AdminLayout>
             // </ProtectedRoute>
           }
