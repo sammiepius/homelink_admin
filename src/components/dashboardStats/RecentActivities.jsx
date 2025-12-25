@@ -3,6 +3,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import PropertyPreviewModal from '../PropertyPreviewModal';
+
 import { Clock } from 'lucide-react';
 
 dayjs.extend(relativeTime);
@@ -44,6 +46,11 @@ const formatAction = (action) =>
 export default function RecentActivities() {
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState('ALL');
+  const [selectedProperty, setSelectedProperty] = useState(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewLoading, setPreviewLoading] = useState(false);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -70,9 +77,71 @@ export default function RecentActivities() {
     fetchActivities();
   }, []);
 
+  const openPropertyPreview = async (id) => {
+    if (!id) {
+      console.warn('No property ID provided');
+      return;
+    }
+
+    try {
+      setPreviewLoading(true);
+      setPreviewOpen(true);
+
+      const res = await axios.get(
+        `http://localhost:5000/api/admin/property/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('adminToken')}`,
+          },
+        }
+      );
+
+      setSelectedProperty(res.data.property);
+    } catch (err) {
+      console.error('Failed to load property', err);
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
+
+  const filteredActivities = activities.filter((log) => {
+    if (filter === 'ALL') return true;
+
+    if (filter === 'APPROVAL') return log.action.includes('APPROVE');
+
+    if (filter === 'DELETE') return log.action.includes('DELETE');
+
+    if (filter === 'REJECT') return log.action.includes('REJECT');
+
+    if (filter === 'CREATE') return log.action.includes('CREATE');
+
+    return true;
+  });
+
   return (
     <section className="bg-white p-6 rounded-xl shadow-sm border">
-      <h2 className="font-semibold mb-4">Recent Activity</h2>
+      <h6 className="font-semibold mb-4">Recent Activity</h6>
+      <div className="flex gap-2 mb-4">
+        {[
+          { label: 'All', value: 'ALL' },
+          { label: 'Approvals', value: 'APPROVAL' },
+          { label: 'Deletes', value: 'DELETE' },
+          { label: 'Rejects', value: 'REJECT' },
+          { label: 'Create', value: 'CREATE' },
+        ].map((item) => (
+          <button
+            key={item.value}
+            onClick={() => setFilter(item.value)}
+            className={`px-3 py-1 rounded-full text-xs font-medium border transition
+        ${
+          filter === item.value
+            ? 'bg-blue-600 text-white border-blue-600'
+            : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
+        }`}>
+            {item.label}
+          </button>
+        ))}
+      </div>
 
       <table className="w-full text-left text-sm">
         <thead>
@@ -83,62 +152,71 @@ export default function RecentActivities() {
           </tr>
         </thead>
 
-        {/* <tbody>
-          {loading && (
-            <tr>
-              <td colSpan="3" className="py-4 text-center text-gray-400">
-                Loading activities...
-              </td>
-            </tr>
-          )}
-
-          {!loading && activities.length === 0 && (
-            <tr>
-              <td colSpan="3" className="py-4 text-center text-gray-400">
-                No recent activity
-              </td>
-            </tr>
-          )}
-
-          {activities.map((log) => (
-            <tr key={log.id} className="border-b last:border-none">
-              <td className="py-2 font-medium">
-                {log.actor?.name || 'System'}
-              </td>
-
-              <td className="text-gray-700">{formatAction(log.action)}</td>
-
-              <td className="text-gray-500">{formatDate(log.createdAt)}</td>
-            </tr>
-          ))}
-        </tbody> */}
         <tbody>
           {loading ? (
             <tr>
               <td colSpan={3} className="py-4 text-gray-400">
-                Loading activity…
+                Loading activity….
               </td>
             </tr>
-          ) : activities.length === 0 ? (
+          ) : filteredActivities.length === 0 ? (
             <tr>
               <td colSpan={3} className="py-4 text-gray-400">
-                No recent activity
+                No activity found for this filter
               </td>
             </tr>
           ) : (
-            activities.map((log) => (
+            filteredActivities.map((log) => (
+              // <tr
+              //   key={log.id}
+              //   className="border-b hover:bg-gray-50 cursor-pointer"
+              //   title="Click to preview property"
+              //   // onClick={() =>
+              //   //   log.entity?.toUpperCase() === 'PROPERTY' &&
+              //   //   openPropertyPreview(log.entityId)
+              //   // }
+              //   onClick={() => {
+              //     if (!log.entityId) return;
+              //     if (log.entity?.toUpperCase() !== 'PROPERTY') return;
+
+              //     openPropertyPreview(log.entityId);
+              //   }}
+
+              //   // onClick={() => {
+              //   //   console.log('CLICKED LOG:', log);
+              //   //   openPropertyPreview(log.entityId);
+              //   // }}
+              // >
               <tr
                 key={log.id}
-                className="border-b hover:bg-gray-50 cursor-pointer"
-                onClick={() =>
-                  log.entity === 'PROPERTY' && onOpenProperty?.(log.entityId)
-                }>
+                onClick={() => {
+                  if (
+                    log.entity?.toUpperCase() === 'PROPERTY' &&
+                    log.entityId
+                  ) {
+                    openPropertyPreview(log.entityId);
+                  }
+                }}
+                title="Click to preview property"
+                className={`border-b hover:bg-gray-50 ${
+                  log.entity?.toUpperCase() === 'PROPERTY'
+                    ? 'cursor-pointer'
+                    : 'cursor-default opacity-70'
+                }`}>
                 {/* USER */}
                 <td className="py-2">
                   <div className="font-medium">
                     {log.actor?.name || 'System'}
                   </div>
-                  <span className="text-xs text-gray-500">{log.actorRole}</span>
+                  <span
+                    className={`text-xs px-2 py-0.5 rounded-full inline-block mt-1
+  ${
+    log.actorRole === 'ADMIN'
+      ? 'bg-purple-100 text-purple-700'
+      : 'bg-gray-100 text-gray-600'
+  }`}>
+                    {log.actorRole}
+                  </span>
                 </td>
 
                 {/* ACTION */}
@@ -161,11 +239,10 @@ export default function RecentActivities() {
                 <td className="text-gray-500 text-sm">
                   {/* {formatDate(new Date(log.createdAt), {
                     addSuffix: true,
-                  })} */} 
+                  })} */}
                   <div className="text-xs text-gray-500">
-                   
                     {/* {log.metadata.title} */}
-                {timeAgo(log.createdAt)}
+                    {timeAgo(log.createdAt)}
                   </div>
                 </td>
               </tr>
@@ -180,6 +257,15 @@ export default function RecentActivities() {
           View all activity →
         </button>
       </div>
+      <PropertyPreviewModal
+        open={previewOpen}
+        loading={previewLoading}
+        property={selectedProperty}
+        onClose={() => {
+          setPreviewOpen(false);
+          setSelectedProperty(null);
+        }}
+      />
     </section>
   );
 }

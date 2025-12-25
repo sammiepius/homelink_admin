@@ -140,7 +140,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
                 Approvals
               </div>
 
-              <div
+              {/* <div
                 onClick={() => navigate('/properties/archived')}
                 className={`p-2 rounded-lg cursor-pointer
                   ${
@@ -150,7 +150,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
                   }
                 `}>
                 Archived
-              </div>
+              </div> */}
             </div>
           )}
         </div>
