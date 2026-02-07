@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import dayjs from 'dayjs';
+import { useNavigate } from 'react-router-dom';
 
 export default function UsersPage() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchUsers();
@@ -72,7 +74,11 @@ export default function UsersPage() {
           <tbody>
             {users.map((u) => (
               <tr key={u.id} className="border-t hover:bg-gray-50">
-                <td className="p-4 font-medium">{u.name}</td>
+                <td
+                  className="p-4 font-medium"
+                  onClick={() => navigate(`/user/${u.id}`)}>
+                  {u.name}
+                </td>
                 <td className="p-4 text-gray-600">{u.email}</td>
                 <td className="p-4">{roleBadge(u.role)}</td>
                 <td className="p-4 text-gray-500">

@@ -12,6 +12,7 @@ import ApprovalsPage from './pages/ApprovalPage';
 import PropertyDetails from './pages/PropertyDetails';
 import AdminAuditLogs from './pages/AuditLogs';
 import RecentActivities from './components/dashboardStats/RecentActivities';
+import UserDetailsPage from './pages/UserDetails';
 
 export default function App() {
   return (
@@ -23,6 +24,7 @@ export default function App() {
         <Route path="/property/:id" element={<PropertyDetails />} />
         <Route path="/activity/audit" element={<AdminAuditLogs />} />
         <Route path="/activity/recent" element={<RecentActivities />} />
+        <Route path="/user/:id" element={<UserDetailsPage />} />
 
         <Route
           path="/dashboard"
